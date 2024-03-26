@@ -4,6 +4,23 @@ import numpy as np
 
 
 
+def detectLanes(result, frame):
+    # Convert the image to grayscale
+
+
+
+    # Use Hough Line Transform to detect lines in the image
+    lines = cv2.HoughLinesP(result, 1, np.pi / 180, threshold=1, minLineLength=10, maxLineGap=0)
+
+    if lines is not None:
+        for line in lines:
+            x1, y1, x2, y2 = line[0]
+
+            slope = (y2-y1)/(x2-x1)
+            if(slope > .4 or slope <-.4):
+
+              cv2.line(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    return frame
 
 cap = cv2.VideoCapture('istockphoto-583789290-640_adpp_is.mp4')
 
@@ -27,8 +44,13 @@ while cap.isOpened():
     mask2 = cv2.inRange(hsv, lower_white, upper_white)
     mask = mask2 | mask1
     result = cv2.bitwise_and(frame, frame, mask=mask)
+    result = cv2.cvtColor(result, cv2.COLOR_BGR2GRAY)
 
-    cv2.imshow('Frame', result)
+
+    lineImage = detectLanes(result,frame)
+
+
+    cv2.imshow('Frame', frame)
 
 
     if cv2.waitKey(25) & 0xFF == ord('q'):
